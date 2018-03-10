@@ -8,7 +8,7 @@
 #ifndef I2C_H_
 #define I2C_H_
 
-extern unsigned char RX_Data[8];
+extern unsigned char RX_Data[14];
 extern unsigned char TX_Data[2];
 //extern unsigned char RX_ByteCtr;
 //extern unsigned char TX_ByteCtr;
