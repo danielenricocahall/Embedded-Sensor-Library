@@ -3,7 +3,7 @@
 #include "MPU6050.h"
 
 
-//Written to save temperature values
+//Written to save temperature + accel values
 //Although can be modified to fit other applications
 void write_flash (char *pntr)
 {
@@ -22,10 +22,7 @@ void write_flash (char *pntr)
 	  for (i=512; i>0; --i)                    //iterate to 512 because each segment is separate bytes                                     //by 512 bytes
 	    {
 		  __delay_cycles(10000);				//100 Hz sampling rate
-	  	  //int temp = tempOut();					//Read current temp
 	  	  getMPU6050();							//Acquire current accelerations
-	  	  //*Flash_ptr++ = temp;                 // Write value to flash
-	  	  //int xAccel = getXAccel();				//Read current x-acceleration value
 	  	  *Flash_ptr++ = getZAccel();                 // Write value to flash
 	  	  *Flash_ptr++ = getZAccel() >> 8;
 	  	  *Flash_ptr++= getYAccel();				//Read current y-acceleration value
@@ -36,6 +33,8 @@ void write_flash (char *pntr)
 	  	  *Flash_ptr++ = getZAngle() >> 8;
 	  	  *Flash_ptr++ = getYAngle();                 // Write value to flash
 	  	  *Flash_ptr++ = getYAngle() >> 8;
+	  	  *Flash_ptr++ = getXAngle();                 // Write value to flash
+	  	  *Flash_ptr++ = getXAngle() >> 8;
 	    }
 
 	  FCTL1 = FWKEY;                           // Clear WRT bit
