@@ -16,10 +16,9 @@ void getMPU6050();
 int getXAccel();
 int getYAccel();
 int getZAccel();
-int getHumidity();
+int getXAngle();
 int getYAngle();
 int getZAngle();
 int getTemp();
-int getPressure();
 
 #endif /* MPU6050_H_ */
