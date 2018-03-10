@@ -1,7 +1,7 @@
 #include <msp430.h>
 #include "I2C.h"
 
-unsigned char RX_Data[8];
+unsigned char RX_Data[14];
 unsigned char TX_Data[2];
 unsigned char RX_ByteCtr;
 unsigned char TX_ByteCtr;
@@ -74,7 +74,3 @@ __interrupt void USCIAB0TX_ISR(void)
 		}
 	}
 }
-
-
-
-
