@@ -23,8 +23,7 @@ int xAngle;
 int yAngle;
 int zAngle;
 int temperature;
-int humidity;
-int pressure;
+
 const unsigned char PWR_MGMT_1   = 0x6B;	// MPU-6050 register address
 const unsigned char ACCEL_XOUT_H = 0x3B;	// MPU-6050 register address
 const unsigned char ACCEL_XOUT_L = 0x3C;	// MPU-6050 register address
@@ -39,22 +38,20 @@ const unsigned char GYRO_YOUT_H = 0x45;
 const unsigned char GYRO_YOUT_L = 0x46;
 const unsigned char GYRO_ZOUT_H = 0x47;
 const unsigned char GYRO_ZOUT_L = 0x48;
-const unsigned char TEMP_OUT_H = 0xF7;
-const unsigned char TEMP_OUT_L = 0xF8;
-const unsigned char TEMP_OUT_XL = 0xF9;
-
+const unsigned char TEMP_OUT_H = 0x41;
+const unsigned char TEMP_OUT_L = 0x42;
 
 void initMPU6050() {
 	P1SEL |= BIT6 + BIT7;
 	P1SEL2|= BIT6 + BIT7;
 	P1DIR |= 0x08;
 
-	slaveAddress = 0x77;	// Set slave address for MPU-6050
+	slaveAddress = 0x68;	// Set slave address for MPU-6050
 
 	i2cInit();
 
 	// Wake up the MPU-6050
-	slaveAddress = 0x77;					// MPU-6050 address
+	slaveAddress = 0x68;					// MPU-6050 address
 	TX_Data[1] = 0x6B;						// address of PWR_MGMT_1 register
 	TX_Data[0] = 0x00;						// set register to zero (wakes up the MPU-6050)
 	TX_ByteCtr = 2;
@@ -62,29 +59,51 @@ void initMPU6050() {
 
 	//placing the accelerometer in mode 3
 	//which is +/- 16g
+	//Note:
+	//
+
+	TX_Data[1] = 0x1C;
+	TX_Data[0] = 0x18;
+	TX_ByteCtr = 2;
+	i2cWrite(slaveAddress);
 
 	//gyro handling
+	TX_Data[1] = 0x1B;
+	TX_Data[0] = 0x18;
+	TX_ByteCtr = 2;
+	i2cWrite(slaveAddress);
+
+	//low pass filter handling
+	TX_Data[1] = 0x1A;
+	TX_Data[0] = 0x06;
+	TX_ByteCtr = 2;
+	i2cWrite(slaveAddress);
 }
 
 void getMPU6050(){
 	// Point to the ACCEL_ZOUT_H register in the MPU-6050
-	slaveAddress = 0x77;					// MPU-6050 address
-	TX_Data[0] = 0xF7;					// register address
+	slaveAddress = 0x68;					// MPU-6050 address
+	TX_Data[0] = 0x3B;					// register address
 	TX_ByteCtr = 1;
 	i2cWrite(slaveAddress);
 
-	slaveAddress = 0x77;					// MPU-6050 address
-	RX_ByteCtr = 8;
+	RX_ByteCtr = 14;
 	i2cRead(slaveAddress);
-	temperature = RX_Data[7];          //MSB
+	xAccel  = RX_Data[13] << 8;				// MSB
+	xAccel |= RX_Data[12];					// LSB
+	yAccel  = RX_Data[11] << 8;				// MSB
+	yAccel |= RX_Data[10];					// LSB
+	zAccel  = RX_Data[9] << 8;				// MSB
+	zAccel |= RX_Data[8];					// LSB
+	temperature = RX_Data[7] << 8;          //MSB
 	temperature |= RX_Data[6];               //LSB
-	temperature |= RX_Data[5];
-	pressure  = RX_Data[4] << 8;				// MSB
-	pressure |= RX_Data[3] << 8;					// LSB
-	pressure |= RX_Data[2];
-	humidity = RX_Data[1] << 8;				// MSB
-	humidity |= RX_Data[0];					// LSB
-	__no_operation();
+	xAngle  = RX_Data[5] << 8;				// MSB
+	xAngle |= RX_Data[4];					// LSB
+	yAngle  = RX_Data[3] << 8;				// MSB
+	yAngle |= RX_Data[2];					// LSB
+	zAngle  = RX_Data[1] << 8;				// MSB
+	zAngle |= RX_Data[0];					// LSB
+	//__no_operation();
 
 }
 //get the z-acceleration values
@@ -114,22 +133,12 @@ int getYAngle()
 	return yAngle;
 }
 //get the x-gyro values
-int getHumidity()
+int getXAngle()
 {
-	return humidity;
+	return xAngle;
 }
 
 int getTemp()
 {
 	return temperature;
 }
-
-int getPressure()
-{
-	return pressure;
-}
-
-
-
-
-
